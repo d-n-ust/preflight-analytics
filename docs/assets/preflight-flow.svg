@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 200" width="960" height="200" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="preflight reads a dbt project's semantic layer, warehouse, and docs; dbt parse produces manifest.json; preflight scan flags a SCOPE_TRAP where food_orders is orders plus a hidden filter, cited to orders.yml line 139.">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <!-- card -->
+  <rect x="8" y="8" width="944" height="184" rx="14" fill="#faf8f5" stroke="#e6e2da" stroke-width="1.5"/>
+
+  <!-- arrows (drawn first, under the boxes) -->
+  <line x1="228" y1="100" x2="298" y2="100" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="450" y1="100" x2="510" y2="100" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <line x1="662" y1="100" x2="722" y2="100" stroke="#64748b" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text x="263" y="90" text-anchor="middle" font-size="11" fill="#64748b">dbt parse</text>
+
+  <!-- node 1: dbt project -->
+  <rect x="32" y="56" width="196" height="88" rx="9" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
+  <text x="130" y="95" text-anchor="middle" font-size="15" font-weight="600" fill="#0f1720">dbt project</text>
+  <text x="130" y="116" text-anchor="middle" font-size="11" fill="#64748b">semantic &#183; warehouse &#183; docs</text>
+
+  <!-- node 2: manifest.json -->
+  <rect x="300" y="56" width="150" height="88" rx="9" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
+  <text x="375" y="105" text-anchor="middle" font-size="13.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#0f1720">manifest.json</text>
+
+  <!-- node 3: preflight scan (the tool) -->
+  <rect x="512" y="56" width="150" height="88" rx="9" fill="#f6ede3" stroke="#d08a5b" stroke-width="1.6"/>
+  <text x="587" y="105" text-anchor="middle" font-size="14.5" font-weight="600" fill="#7a4a24">preflight scan</text>
+
+  <!-- node 4: the finding -->
+  <rect x="724" y="56" width="204" height="88" rx="9" fill="#fbe4e2" stroke="#d1685f" stroke-width="1.6"/>
+  <text x="826" y="85" text-anchor="middle" font-size="11" font-weight="700" letter-spacing="0.6" fill="#b0453a">SCOPE_TRAP</text>
+  <text x="826" y="106" text-anchor="middle" font-size="13.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#7a2b25">food_orders ~ orders</text>
+  <text x="826" y="125" text-anchor="middle" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#a86a62">orders.yml:139</text>
+</svg>

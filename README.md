@@ -16,14 +16,10 @@ confident wrong answer. No model, no questions, no warehouse run.
 
 **[Quickstart](docs/dbt-quickstart.md)** · **[Finding catalog](docs/catalog.md)** · **[Library](docs/library.md)** · **[CI / guardrail](docs/ci.md)**
 
-```mermaid
-flowchart LR
-    A["dbt project<br/>semantic · warehouse · docs"] -->|dbt parse| B["manifest.json"]
-    B --> C["preflight scan"]
-    C --> D["SCOPE_TRAP<br/>food_orders ~ orders<br/>orders.yml:139"]
-    classDef hit fill:#fbe4e2,stroke:#d1685f,color:#7a2b25;
-    class D hit;
-```
+<p align="center">
+  <img src="docs/assets/preflight-flow.svg" width="820"
+       alt="preflight reads a dbt project's semantic layer, warehouse, and docs; dbt parse produces manifest.json; preflight scan flags a SCOPE_TRAP where food_orders is orders plus a hidden filter, cited to orders.yml:139">
+</p>
 
 Point it at a dbt project and it finds real traps. Here is one in dbt-labs' own Semantic Layer template,
 found in seconds and cited to the line an analytics engineer edits:

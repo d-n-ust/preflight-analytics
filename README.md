@@ -1,11 +1,45 @@
 # preflight
 
-Static, cross-layer **ambiguity detection** for governed analytics.
+**Stop your AI analyst from silently answering the wrong question.**
 
-Before an AI analyst or a person runs a query, `preflight` compares the definitions they could ground on
-— semantic-layer metrics, warehouse columns, documented terms — and flags the pairs that read alike but
-resolve to **different numbers**. It reads your definitions, not your query logs, so it catches the
-confusion *before* someone returns a confident wrong answer. No model, no questions, no warehouse run.
+Static, cross-layer **ambiguity detection** for governed analytics. Before an agent (or a person) runs a
+query, `preflight` compares the definitions it could ground on — semantic-layer metrics, warehouse
+columns, documented terms — and flags the pairs that read alike but resolve to **different numbers**. It
+reads your definitions, not your query logs, so it catches the confusion *before* someone returns a
+confident wrong answer. No model, no questions, no warehouse run.
+
+[![CI](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Checked with mypy](https://img.shields.io/badge/mypy-checked-2a6db2.svg)](https://mypy-lang.org/)
+
+**[Quickstart](docs/dbt-quickstart.md)** · **[Finding catalog](docs/catalog.md)** · **[Library](docs/library.md)** · **[CI / guardrail](docs/ci.md)**
+
+```mermaid
+flowchart LR
+    A["dbt project<br/>semantic · warehouse · docs"] -->|dbt parse| B["manifest.json"]
+    B --> C["preflight scan"]
+    C --> D["SCOPE_TRAP<br/>food_orders ~ orders<br/>orders.yml:139"]
+    classDef hit fill:#fbe4e2,stroke:#d1685f,color:#7a2b25;
+    class D hit;
+```
+
+Point it at a dbt project and it finds real traps. Here is one in dbt-labs' own Semantic Layer template,
+found in seconds and cited to the line an analytics engineer edits:
+
+```text
+$ preflight scan . --dialect dbt-manifest
+11 findings — high 4, medium 0, low 7
+
+HIGH (4)
+  models/marts/customer360/orders.yml:139: [SCOPE_TRAP] food_orders[sem]  ~  orders[sem]
+      same measure; 'food_orders' is 'orders' plus a filter — bare question silently scoped, swap invisible
+  ...
+```
+
+`food_orders` is `orders` with a hidden filter, so a bare "how many orders?" silently under-counts — and
+the number looks completely plausible. That is the failure preflight exists to catch.
 
 **Why it helps.** When two plausible metrics exist for one question, an AI agent (or a hurried human)
 can silently pick the wrong one, and the number looks fine. preflight finds those forks in CI, each
@@ -22,6 +56,9 @@ import and the CLI command both stay `preflight`. For now, install from source w
 ```bash
 uv tool install .                 # core: structural detection on a lexical gate (no torch)
 uv tool install ".[embeddings]"   # + the sharper, validated gate — see docs/gate.md
+
+# or straight from GitHub, without cloning:
+uv tool install "git+https://github.com/d-n-ust/preflight-analytics"
 ```
 
 ## Use

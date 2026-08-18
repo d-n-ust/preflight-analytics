@@ -12,11 +12,11 @@ and the classic JavaScript form (`cube('Name', { measures: … })`).
 
 ## Install
 
-preflight publishes as `preflight-analytics` (the bare `preflight` name is taken); the import and CLI
-command stay `preflight`. Until it is on PyPI, install from source with [uv](https://docs.astral.sh/uv/):
+The distribution is `preflight-analytics` (the bare `preflight` name is taken on PyPI); the import and
+CLI command stay `preflight`. Install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv tool install "git+https://github.com/d-n-ust/preflight-analytics"
+uv tool install preflight-analytics   # or: pip install preflight-analytics
 ```
 
 ## A worked example (a real public Cube model)

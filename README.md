@@ -9,15 +9,15 @@ reads your definitions, not your query logs, so it catches the confusion *before
 confident wrong answer. No model, no questions, no warehouse run.
 
 [![CI](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/d-n-ust/preflight-analytics/blob/main/LICENSE)
+[![python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://github.com/d-n-ust/preflight-analytics/blob/main/pyproject.toml)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Checked with mypy](https://img.shields.io/badge/mypy-checked-2a6db2.svg)](https://mypy-lang.org/)
 
-**[Quickstart](docs/dbt-quickstart.md)** · **[Finding catalog](docs/catalog.md)** · **[Library](docs/library.md)** · **[CI / guardrail](docs/ci.md)**
+**[Quickstart](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)** · **[Finding catalog](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/catalog.md)** · **[Library](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/library.md)** · **[CI / guardrail](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**
 
 <p align="center">
-  <img src="docs/assets/preflight-flow.svg" width="820"
+  <img src="https://raw.githubusercontent.com/d-n-ust/preflight-analytics/main/docs/assets/preflight-flow.svg" width="820"
        alt="preflight reads a dbt project's semantic layer, warehouse, and docs; dbt parse produces manifest.json; preflight scan flags a SCOPE_TRAP where food_orders is orders plus a hidden filter, cited to orders.yml:139">
 </p>
 
@@ -45,17 +45,13 @@ definition is internally correct is a separate job.)
 
 ## Install
 
-Not on PyPI yet — it publishes as `preflight-analytics` (the bare `preflight` name is taken); the
-import and the CLI command both stay `preflight`. For now, install from source with
-[uv](https://docs.astral.sh/uv/):
-
 ```bash
-uv tool install .                 # core: structural detection on a lexical gate (no torch)
-uv tool install ".[embeddings]"   # + the sharper, validated gate — see docs/gate.md
-
-# or straight from GitHub, without cloning:
-uv tool install "git+https://github.com/d-n-ust/preflight-analytics"
+uv tool install preflight-analytics                 # or: pip install preflight-analytics
+uv tool install "preflight-analytics[embeddings]"   # + the sharper, validated gate (docs/gate.md)
 ```
+
+The distribution is `preflight-analytics` (the bare `preflight` name was taken on PyPI); the import
+package and the CLI command are both `preflight`.
 
 ## Use
 
@@ -64,7 +60,7 @@ preflight scan . --dialect dbt-manifest            # scan a dbt project
 preflight scan . --dialect dbt-manifest --detail   # + the offending source line
 ```
 
-Every finding is cited to `path:line`. New here? **[docs/dbt-quickstart.md](docs/dbt-quickstart.md)** walks a real dbt
+Every finding is cited to `path:line`. New here? **[docs/dbt-quickstart.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)** walks a real dbt
 project (jaffle shop) end to end in a few commands.
 
 ## What it finds
@@ -80,7 +76,7 @@ project (jaffle shop) end to end in a few commands.
 | **SIBLING** | the same measure under two incomparable scopes |
 
 Each is a real confusion that returns a wrong number. A worked example and the recommended fix for every
-one: **[docs/catalog.md](docs/catalog.md)**.
+one: **[docs/catalog.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/catalog.md)**.
 
 ## How it decides
 
@@ -131,10 +127,10 @@ preflight scan . --dialect dbt-manifest
 
 Generating the manifest is your dbt project's job; preflight only reads it (if you already use dbt, CI
 has produced it). Full walkthrough, both jaffle projects, and the manifest details:
-**[docs/dbt-quickstart.md](docs/dbt-quickstart.md)**.
+**[docs/dbt-quickstart.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)**.
 
 Not on dbt? preflight reads **Cube** models directly — no build step — with `--dialect cube`
-(walkthrough: **[docs/cube-quickstart.md](docs/cube-quickstart.md)**), plus raw dbt model SQL
+(walkthrough: **[docs/cube-quickstart.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/cube-quickstart.md)**), plus raw dbt model SQL
 (`--dialect dbt`), MetricFlow YAML (`--dialect metricflow`), and a native `semantic/warehouse/docs`
 layout (`--dialect env`).
 
@@ -146,7 +142,7 @@ for f in scan("path/to/environment"):
     print(f.danger, f.type, f.note)
 ```
 
-Adapters, `detect_collisions`, `DetectConfig`, and JSON output: **[docs/library.md](docs/library.md)**.
+Adapters, `detect_collisions`, `DetectConfig`, and JSON output: **[docs/library.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/library.md)**.
 
 ## Guardrail (CI / pre-commit)
 
@@ -154,4 +150,4 @@ Adapters, `detect_collisions`, `DetectConfig`, and JSON output: **[docs/library.
 preflight scan . --dialect dbt-manifest --fail-on high   # non-zero exit on a HIGH finding
 ```
 
-Drops into GitHub Actions or a pre-commit hook — setup in **[docs/ci.md](docs/ci.md)**.
+Drops into GitHub Actions or a pre-commit hook — setup in **[docs/ci.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**.

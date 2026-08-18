@@ -10,12 +10,11 @@ Think of it as a linter for *meaning*, next to `dbt test` (values) and `sqlfluff
 
 ## Install
 
-preflight publishes as `preflight-analytics` (the bare `preflight` name belongs to an unrelated
-project); the import and CLI command stay `preflight`. Until it is on PyPI, install from source:
+The distribution is `preflight-analytics` (the bare `preflight` name is taken on PyPI); the import and
+CLI command stay `preflight`. Install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-# from the preflight repo root
-uv tool install .
+uv tool install preflight-analytics   # or: pip install preflight-analytics
 preflight scan --help
 ```
 

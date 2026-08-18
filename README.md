@@ -84,23 +84,43 @@ one: **[docs/catalog.md](docs/catalog.md)**.
 
 ## How it decides
 
-preflight compares definitions by **meaning, not by name** — similarity only chooses *what to look at*,
-never whether something is wrong. Four steps:
+preflight reads what each metric or column *actually means* — which rows it counts, which column it
+adds up, and how — not just its name. Then it looks for two definitions someone (or an AI agent) could
+reasonably mix up and asks one question: **would they return different numbers?** If yes, it flags the
+pair and points at the trap.
 
-1. **Normalize.** Every metric, measure, column, and term — from dbt, Cube, or MetricFlow — is reduced
-   to one shape: what it measures, how it aggregates, its base table, its population (filter / segment),
-   and its grain.
-2. **Gate.** A confusability check picks the name-pairs worth comparing — spelling by default, spelling
-   *and* meaning with the optional embedding gate — so it doesn't compare everything to everything.
-3. **Classify, structurally.** For each candidate pair the collision type is decided from the
-   *structure*, not the names: same measure where one population is a subset of the other → `SCOPE_TRAP`;
-   same table and aggregation over different columns → `CONCEPT_FORK`; one term with two divergent
-   definitions → `DEFINITION_DIVERGENCE`; and so on.
-4. **Cluster and rank.** Related findings are grouped, ranked by danger, and cited to the source line.
+The idea in one line: **it judges by meaning, not spelling.** Two metrics with nearly the same name can
+be perfectly fine, and two with different names can quietly disagree — it's the second case that burns
+you.
 
-No model runs and no queries execute; the structural rules are deterministic, so the same input yields
-the same findings every time. (The optional embedding gate only sharpens step 2 — it is never
-load-bearing for the danger call.)
+1. **Read** each definition into a plain shape: what it measures, how it's aggregated, from which table,
+   over which rows.
+2. **Pair up** the ones worth comparing — names a reader could confuse.
+3. **Judge from the shapes, not the names:** same measure but one is a filtered slice of the other → a
+   scope trap; same table and math over a different column → a forked concept; one term defined two ways
+   → a divergent definition. One rule per kind of confusion.
+4. **Report:** grouped, worst first, each cited to the exact file and line.
+
+What that looks like on real definitions:
+
+```text
+SCOPE_TRAP — one metric is another metric plus a hidden filter
+    orders       =  count of all orders
+    food_orders  =  count of orders, but only rows WHERE is_food_order
+    → same count, a hidden slice. "How many orders?" can silently answer
+      food_orders and under-count.
+
+CONCEPT_FORK — one word, several numbers
+    revenue        =  SUM(amount)
+    food_revenue   =  SUM(amount), but only food rows
+    drink_revenue  =  SUM(amount), but only drink rows
+    → same table and SUM, different columns. "What's our revenue?" now has
+      three different answers.
+```
+
+It runs no model and no queries, so the same definitions always produce the same findings. (An optional
+smarter matcher also catches synonyms like `revenue` ≈ `sales`, but it only widens *what gets compared*,
+never the final call.)
 
 ## dbt
 

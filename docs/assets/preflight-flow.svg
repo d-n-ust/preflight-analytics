@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 384" width="460" height="384" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="A governed model (dbt, Cube, or MetricFlow) feeds preflight scan, which flags a SCOPE_TRAP: food_orders is orders plus a hidden filter, cited to orders.yml line 139.">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 220" width="640" height="220" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" role="img" aria-label="A governed model (dbt, Cube, or MetricFlow) feeds preflight scan, which flags a SCOPE_TRAP: food_orders is orders plus a hidden filter, cited to orders.yml line 139.">
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
@@ -6,35 +6,33 @@
   </defs>
 
   <!-- card -->
-  <rect x="8" y="8" width="444" height="368" rx="16" fill="#faf8f5" stroke="#e6e2da" stroke-width="1.5"/>
+  <rect x="8" y="8" width="624" height="204" rx="14" fill="#faf8f5" stroke="#e6e2da" stroke-width="1.5"/>
 
-  <!-- group header -->
-  <text x="230" y="35" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="1.5" fill="#8a8171">GOVERNED MODEL</text>
+  <!-- three source models stacked at left (any one is enough) -->
+  <rect x="26" y="32"  width="118" height="46" rx="9" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
+  <text x="85" y="62"  text-anchor="middle" font-size="19" font-weight="600" fill="#0f1720">dbt</text>
+  <rect x="26" y="86"  width="118" height="46" rx="9" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
+  <text x="85" y="116" text-anchor="middle" font-size="19" font-weight="600" fill="#0f1720">Cube</text>
+  <rect x="26" y="140" width="118" height="46" rx="9" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
+  <text x="85" y="170" text-anchor="middle" font-size="15" font-weight="600" fill="#0f1720">MetricFlow</text>
+  <text x="85" y="202" text-anchor="middle" font-size="12" letter-spacing="0.3" fill="#8a8171">governed model</text>
 
-  <!-- three source models (any one is enough) -->
-  <rect x="26"  y="48" width="128" height="54" rx="10" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
-  <text x="90"  y="82" text-anchor="middle" font-size="19" font-weight="600" fill="#0f1720">dbt</text>
-  <rect x="166" y="48" width="128" height="54" rx="10" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
-  <text x="230" y="82" text-anchor="middle" font-size="19" font-weight="600" fill="#0f1720">Cube</text>
-  <rect x="306" y="48" width="128" height="54" rx="10" fill="#ffffff" stroke="#d3d2ce" stroke-width="1.4"/>
-  <text x="370" y="82" text-anchor="middle" font-size="17" font-weight="600" fill="#0f1720">MetricFlow</text>
-
-  <!-- merge the three into one bus, then one arrow down into the scan -->
-  <line x1="90"  y1="102" x2="90"  y2="116" stroke="#64748b" stroke-width="1.5"/>
-  <line x1="230" y1="102" x2="230" y2="116" stroke="#64748b" stroke-width="1.5"/>
-  <line x1="370" y1="102" x2="370" y2="116" stroke="#64748b" stroke-width="1.5"/>
-  <line x1="90"  y1="116" x2="370" y2="116" stroke="#64748b" stroke-width="1.5"/>
-  <line x1="230" y1="116" x2="230" y2="148" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <!-- merge the three into one bus, then one arrow into the scan -->
+  <line x1="144" y1="55"  x2="186" y2="55"  stroke="#64748b" stroke-width="1.5"/>
+  <line x1="144" y1="109" x2="186" y2="109" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="144" y1="163" x2="186" y2="163" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="186" y1="55"  x2="186" y2="163" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="186" y1="109" x2="212" y2="109" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
 
   <!-- preflight scan (the tool) -->
-  <rect x="140" y="150" width="180" height="54" rx="10" fill="#f6ede3" stroke="#d08a5b" stroke-width="1.8"/>
-  <text x="230" y="184" text-anchor="middle" font-size="20" font-weight="600" fill="#7a4a24">preflight scan</text>
+  <rect x="214" y="86" width="158" height="46" rx="9" fill="#f6ede3" stroke="#d08a5b" stroke-width="1.8"/>
+  <text x="293" y="116" text-anchor="middle" font-size="20" font-weight="600" fill="#7a4a24">preflight scan</text>
 
-  <line x1="230" y1="204" x2="230" y2="236" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
+  <line x1="372" y1="109" x2="400" y2="109" stroke="#64748b" stroke-width="1.8" marker-end="url(#arrow)"/>
 
   <!-- the finding -->
-  <rect x="66" y="238" width="328" height="114" rx="10" fill="#fbe4e2" stroke="#d1685f" stroke-width="1.8"/>
-  <text x="230" y="272" text-anchor="middle" font-size="15" font-weight="700" letter-spacing="1" fill="#b0453a">SCOPE_TRAP</text>
-  <text x="230" y="304" text-anchor="middle" font-size="21" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#7a2b25">food_orders ~ orders</text>
-  <text x="230" y="332" text-anchor="middle" font-size="15" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#a86a62">orders.yml:139</text>
+  <rect x="402" y="73" width="224" height="72" rx="9" fill="#fbe4e2" stroke="#d1685f" stroke-width="1.8"/>
+  <text x="514" y="99"  text-anchor="middle" font-size="14" font-weight="700" letter-spacing="1" fill="#b0453a">SCOPE_TRAP</text>
+  <text x="514" y="123" text-anchor="middle" font-size="17" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#7a2b25">food_orders ~ orders</text>
+  <text x="514" y="143" text-anchor="middle" font-size="13" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#a86a62">orders.yml:139</text>
 </svg>

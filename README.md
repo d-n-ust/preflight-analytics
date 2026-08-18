@@ -2,11 +2,10 @@
 
 **Stop your AI analyst from silently answering the wrong question.**
 
-Static, cross-layer **ambiguity detection** for governed analytics. Before an agent (or a person) runs a
-query, `preflight` compares the definitions it could ground on (semantic-layer metrics, warehouse
-columns, documented terms) and flags the pairs that read alike but resolve to **different numbers**. It
-reads your definitions, not your query logs, so it catches the confusion *before* someone returns a
-confident wrong answer. No model, no questions, no warehouse run.
+Static, cross-layer **ambiguity detection** for governed analytics. `preflight` reads your dbt, Cube, or
+MetricFlow definitions and flags the pairs that read alike but resolve to **different numbers**, before
+an agent (or a person) grounds a question on the wrong one. It runs on definitions alone, before any
+query. No warehouse, no model.
 
 [![CI](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/d-n-ust/preflight-analytics/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/d-n-ust/preflight-analytics/blob/main/LICENSE)
@@ -17,7 +16,7 @@ confident wrong answer. No model, no questions, no warehouse run.
 **[Quickstart](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)** · **[Finding catalog](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/catalog.md)** · **[Library](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/library.md)** · **[CI / guardrail](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/d-n-ust/preflight-analytics/main/docs/assets/preflight-flow.svg" width="460"
+  <img src="https://raw.githubusercontent.com/d-n-ust/preflight-analytics/main/docs/assets/preflight-flow.svg" width="640"
        alt="A governed model (dbt, Cube, or MetricFlow) feeds preflight scan, which flags a SCOPE_TRAP: food_orders is orders plus a hidden filter, cited to orders.yml:139">
 </p>
 

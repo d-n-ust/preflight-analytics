@@ -3,8 +3,8 @@
 **Stop your AI analyst from silently answering the wrong question.**
 
 Static, cross-layer **ambiguity detection** for governed analytics. Before an agent (or a person) runs a
-query, `preflight` compares the definitions it could ground on — semantic-layer metrics, warehouse
-columns, documented terms — and flags the pairs that read alike but resolve to **different numbers**. It
+query, `preflight` compares the definitions it could ground on (semantic-layer metrics, warehouse
+columns, documented terms) and flags the pairs that read alike but resolve to **different numbers**. It
 reads your definitions, not your query logs, so it catches the confusion *before* someone returns a
 confident wrong answer. No model, no questions, no warehouse run.
 
@@ -17,8 +17,8 @@ confident wrong answer. No model, no questions, no warehouse run.
 **[Quickstart](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)** · **[Finding catalog](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/catalog.md)** · **[Library](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/library.md)** · **[CI / guardrail](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/d-n-ust/preflight-analytics/main/docs/assets/preflight-flow.svg" width="820"
-       alt="preflight reads a dbt project's semantic layer, warehouse, and docs; dbt parse produces manifest.json; preflight scan flags a SCOPE_TRAP where food_orders is orders plus a hidden filter, cited to orders.yml:139">
+  <img src="https://raw.githubusercontent.com/d-n-ust/preflight-analytics/main/docs/assets/preflight-flow.svg" width="460"
+       alt="A governed model (dbt, Cube, or MetricFlow) feeds preflight scan, which flags a SCOPE_TRAP: food_orders is orders plus a hidden filter, cited to orders.yml:139">
 </p>
 
 Point it at a dbt project and it finds real traps. Here is one in dbt-labs' own Semantic Layer template,
@@ -34,13 +34,13 @@ HIGH (4)
   ...
 ```
 
-`food_orders` is `orders` with a hidden filter, so a bare "how many orders?" silently under-counts — and
+`food_orders` is `orders` with a hidden filter, so a bare "how many orders?" silently under-counts, and
 the number looks completely plausible. That is the failure preflight exists to catch.
 
 **Why it helps.** When two plausible metrics exist for one question, an AI agent (or a hurried human)
 can silently pick the wrong one, and the number looks fine. preflight finds those forks in CI, each
 cited to the source `.yml`/`.sql` line, so you fix them before they ship. It covers the **selection**
-half of grounding safety — two valid definitions exist and the wrong one gets picked. (Whether a single
+half of grounding safety: two valid definitions exist and the wrong one gets picked. (Whether a single
 definition is internally correct is a separate job.)
 
 ## Install
@@ -80,18 +80,18 @@ one: **[docs/catalog.md](https://github.com/d-n-ust/preflight-analytics/blob/mai
 
 ## How it decides
 
-preflight reads what each metric or column *actually means* — which rows it counts, which column it
-adds up, and how — not just its name. Then it looks for two definitions someone (or an AI agent) could
+preflight reads what each metric or column *actually means* (which rows it counts, which column it
+adds up, and how), not just its name. Then it looks for two definitions someone (or an AI agent) could
 reasonably mix up and asks one question: **would they return different numbers?** If yes, it flags the
 pair and points at the trap.
 
 The idea in one line: **it judges by meaning, not spelling.** Two metrics with nearly the same name can
-be perfectly fine, and two with different names can quietly disagree — it's the second case that burns
+be perfectly fine, and two with different names can quietly disagree. It's the second case that burns
 you.
 
 1. **Read** each definition into a plain shape: what it measures, how it's aggregated, from which table,
    over which rows.
-2. **Pair up** the ones worth comparing — names a reader could confuse.
+2. **Pair up** the ones worth comparing: names a reader could confuse.
 3. **Judge from the shapes, not the names:** same measure but one is a filtered slice of the other → a
    scope trap; same table and math over a different column → a forked concept; one term defined two ways
    → a divergent definition. One rule per kind of confusion.
@@ -100,18 +100,18 @@ you.
 What that looks like on real definitions:
 
 ```text
-SCOPE_TRAP — a metric that is secretly a filtered slice of another
+SCOPE_TRAP: a metric that is secretly a filtered slice of another
     users         =  count of all users
     active_users  =  count of users active in the last 30 days
     → active_users is "users" plus a hidden filter, and smaller. Ask "how
       many users?" and you can silently get the active count instead.
 
-CONCEPT_FORK — one name, but computed from different columns
+CONCEPT_FORK: one name, but computed from different columns
     revenue        =  SUM(amount)
     net_revenue    =  SUM(net_amount)
     gross_revenue  =  SUM(gross_amount)
     → same table, same SUM, three different columns. "Revenue" is not one
-      number — which column did you mean?
+      number. Which column did you mean?
 ```
 
 It runs no model and no queries, so the same definitions always produce the same findings. (An optional
@@ -129,7 +129,7 @@ Generating the manifest is your dbt project's job; preflight only reads it (if y
 has produced it). Full walkthrough, both jaffle projects, and the manifest details:
 **[docs/dbt-quickstart.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/dbt-quickstart.md)**.
 
-Not on dbt? preflight reads **Cube** models directly — no build step — with `--dialect cube`
+Not on dbt? preflight reads **Cube** models directly (no build step) with `--dialect cube`
 (walkthrough: **[docs/cube-quickstart.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/cube-quickstart.md)**), plus raw dbt model SQL
 (`--dialect dbt`), MetricFlow YAML (`--dialect metricflow`), and a native `semantic/warehouse/docs`
 layout (`--dialect env`).
@@ -150,4 +150,4 @@ Adapters, `detect_collisions`, `DetectConfig`, and JSON output: **[docs/library.
 preflight scan . --dialect dbt-manifest --fail-on high   # non-zero exit on a HIGH finding
 ```
 
-Drops into GitHub Actions or a pre-commit hook — setup in **[docs/ci.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**.
+Drops into GitHub Actions or a pre-commit hook. Setup in **[docs/ci.md](https://github.com/d-n-ust/preflight-analytics/blob/main/docs/ci.md)**.

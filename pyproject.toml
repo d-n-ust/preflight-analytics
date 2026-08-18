@@ -15,6 +15,20 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [{ name = "Dmitry Ustimov" }]
+keywords = ["dbt", "cube", "metricflow", "semantic-layer", "analytics-engineering",
+            "data-quality", "ambiguity", "linter", "llm"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Database",
+    "Typing :: Typed",
+]
 
 # The core is intentionally light and pure-Python: parse governed definitions, compare their
 # meaning and scope structurally, report the dangerous confusions. No model is required.
@@ -22,6 +36,12 @@ dependencies = [
     "sqlglot>=25",
     "pyyaml>=6",
 ]
+
+[project.urls]
+Homepage = "https://github.com/d-n-ust/preflight-analytics"
+Repository = "https://github.com/d-n-ust/preflight-analytics"
+Changelog = "https://github.com/d-n-ust/preflight-analytics/blob/main/CHANGELOG.md"
+Issues = "https://github.com/d-n-ust/preflight-analytics/issues"
 
 [project.scripts]
 preflight = "preflight.cli:main"

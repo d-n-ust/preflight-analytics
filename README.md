@@ -82,6 +82,26 @@ project (jaffle shop) end to end in a few commands.
 Each is a real confusion that returns a wrong number. A worked example and the recommended fix for every
 one: **[docs/catalog.md](docs/catalog.md)**.
 
+## How it decides
+
+preflight compares definitions by **meaning, not by name** — similarity only chooses *what to look at*,
+never whether something is wrong. Four steps:
+
+1. **Normalize.** Every metric, measure, column, and term — from dbt, Cube, or MetricFlow — is reduced
+   to one shape: what it measures, how it aggregates, its base table, its population (filter / segment),
+   and its grain.
+2. **Gate.** A confusability check picks the name-pairs worth comparing — spelling by default, spelling
+   *and* meaning with the optional embedding gate — so it doesn't compare everything to everything.
+3. **Classify, structurally.** For each candidate pair the collision type is decided from the
+   *structure*, not the names: same measure where one population is a subset of the other → `SCOPE_TRAP`;
+   same table and aggregation over different columns → `CONCEPT_FORK`; one term with two divergent
+   definitions → `DEFINITION_DIVERGENCE`; and so on.
+4. **Cluster and rank.** Related findings are grouped, ranked by danger, and cited to the source line.
+
+No model runs and no queries execute; the structural rules are deterministic, so the same input yields
+the same findings every time. (The optional embedding gate only sharpens step 2 — it is never
+load-bearing for the danger call.)
+
 ## dbt
 
 ```bash

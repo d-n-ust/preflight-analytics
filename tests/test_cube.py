@@ -69,3 +69,18 @@ def test_yaml_scope_trap_detected():
     }]}
     findings = detect_collisions(facts_from_cube_yaml(doc), gate="lexical", config=DetectConfig(gate=0.0))
     assert any(f.type == "SCOPE_TRAP" and f.danger == "high" for f in findings)
+
+
+def test_load_cube_cites_source_line(tmp_path):
+    (tmp_path / "orders.yml").write_text(
+        "cubes:\n"
+        "  - name: orders\n"
+        "    sql_table: orders\n"
+        "    measures:\n"
+        "      - name: revenue\n"
+        "        sql: amount\n"
+        "        type: sum\n")
+    from preflight.cube import load_cube
+    rev = next(f for f in load_cube(tmp_path) if f.label == "revenue")
+    assert rev.source is not None
+    assert rev.source.path.endswith("orders.yml") and rev.source.line == 5   # the `- name: revenue` line

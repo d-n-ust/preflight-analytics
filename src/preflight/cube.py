@@ -17,7 +17,7 @@ import yaml
 from sqlglot import exp
 from sqlglot.errors import SqlglotError
 
-from .adapters import additivity, entity_from_base
+from .adapters import additivity, entity_from_base, with_yaml_sources
 from .model import GroundingFact
 from .scope import build_scope
 
@@ -196,7 +196,9 @@ def load_cube(path: str | Path) -> list[GroundingFact]:
             except yaml.YAMLError:
                 continue
             if isinstance(doc, dict):
-                facts += facts_from_cube_yaml(doc)
+                # cite each fact to its source line — line_of_definition handles both the YAML list
+                # form (`name: x`) and the dict-keyed form; the JS parser's labels are keys too.
+                facts += with_yaml_sources(facts_from_cube_yaml(doc), text, str(f))
         else:
-            facts += facts_from_cube_js(text)
+            facts += with_yaml_sources(facts_from_cube_js(text), text, str(f))
     return facts

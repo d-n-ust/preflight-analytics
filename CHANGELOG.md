@@ -6,6 +6,11 @@ All notable changes are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+- Cube dialect now cites each finding to its source `file:line`, matching the dbt and `env` dialects.
+  `load_cube` attaches a `Source` via `line_of_definition`, so `--detail` and JSON output carry the
+  path and line for Cube models too.
+
 ## [0.1.0] — 2026-08-18
 
 Initial release.

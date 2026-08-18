@@ -93,6 +93,11 @@ Generating the manifest is your dbt project's job; preflight only reads it (if y
 has produced it). Full walkthrough, both jaffle projects, and the manifest details:
 **[docs/dbt-quickstart.md](docs/dbt-quickstart.md)**.
 
+Not on dbt? preflight reads **Cube** models directly — no build step — with `--dialect cube`
+(walkthrough: **[docs/cube-quickstart.md](docs/cube-quickstart.md)**), plus raw dbt model SQL
+(`--dialect dbt`), MetricFlow YAML (`--dialect metricflow`), and a native `semantic/warehouse/docs`
+layout (`--dialect env`).
+
 ## Library
 
 ```python

@@ -104,18 +104,18 @@ you.
 What that looks like on real definitions:
 
 ```text
-SCOPE_TRAP — one metric is another metric plus a hidden filter
-    orders       =  count of all orders
-    food_orders  =  count of orders, but only rows WHERE is_food_order
-    → same count, a hidden slice. "How many orders?" can silently answer
-      food_orders and under-count.
+SCOPE_TRAP — a metric that is secretly a filtered slice of another
+    users         =  count of all users
+    active_users  =  count of users active in the last 30 days
+    → active_users is "users" plus a hidden filter, and smaller. Ask "how
+      many users?" and you can silently get the active count instead.
 
-CONCEPT_FORK — one word, several numbers
+CONCEPT_FORK — one name, but computed from different columns
     revenue        =  SUM(amount)
-    food_revenue   =  SUM(amount), but only food rows
-    drink_revenue  =  SUM(amount), but only drink rows
-    → same table and SUM, different columns. "What's our revenue?" now has
-      three different answers.
+    net_revenue    =  SUM(net_amount)
+    gross_revenue  =  SUM(gross_amount)
+    → same table, same SUM, three different columns. "Revenue" is not one
+      number — which column did you mean?
 ```
 
 It runs no model and no queries, so the same definitions always produce the same findings. (An optional

@@ -25,11 +25,13 @@ found in seconds and cited to the line an analytics engineer edits:
 
 ```text
 $ preflight scan . --dialect dbt-manifest
-11 findings — high 4, medium 0, low 7
+14 findings — high 5, medium 0, low 9
 
-HIGH (4)
-  models/marts/customer360/orders.yml:139: [SCOPE_TRAP] food_orders[sem]  ~  orders[sem]
-      same measure; 'food_orders' is 'orders' plus a filter — bare question silently scoped, swap invisible
+HIGH (5)
+  models/marts/customer360/orders.yml:139: [SCOPE_TRAP] food_orders[sem]  ~  large_order[sem]  ~  orders[sem]  ~  ...
+      same measure; 'large_order' is 'orders' plus a filter — bare question silently scoped, swap invisible
+  models/marts/customer360/order_items.yml:39: [CONCEPT_FORK] food_revenue[sem]  ~  drink_revenue[sem]  ~  revenue[sem]
+      same entity/table aggregated the same way over different columns — a bare concept resolves to different numbers
   ...
 ```
 

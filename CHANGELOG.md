@@ -6,10 +6,26 @@ All notable changes are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-08-19
+
+### Added
+- **Structural pairing.** Two metrics whose declared meaning already agrees — the same measure, or
+  agreement on every meaning facet both declare — are now compared regardless of name similarity.
+  The confusability gate is a pruning heuristic, not evidence, and it starves on acronyms: `mrr` vs
+  `monthly_recurring_revenue` share a measure and three letters, so no text gate can pair them. Such
+  pairs now reach the structural classifier unconditionally. The `CONCEPT_FORK` rule (same table,
+  same aggregation, different columns) deliberately keeps its name-evidence requirement, because
+  without it `order_total` vs `tax_paid` would read as a fork of one concept. Restricted to
+  metric-kind facts; validated as a no-op on `dbt-labs/jaffle-shop`, `dbt-labs/jaffle-sl-template`,
+  and a public Cube model, while catching previously missed metric aliases and scope traps on
+  sprawled layers.
+
 ### Fixed
 - Cube dialect now cites each finding to its source `file:line`, matching the dbt and `env` dialects.
   `load_cube` attaches a `Source` via `line_of_definition`, so `--detail` and JSON output carry the
   path and line for Cube models too.
+- Documentation quoted finding counts from embeddings-gate runs; the counts a default (lexical)
+  install reports are now quoted instead: 14 findings on `jaffle-sl-template`, 9 on the Cube demo.
 
 ## [0.1.0] — 2026-08-18
 
@@ -28,5 +44,6 @@ Initial release.
 - `preflight scan` CLI, a library API (`scan`, `detect_collisions`, `DetectConfig`), a composite
   GitHub Action, and a pre-commit hook.
 
-[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.2.0
 [0.1.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.1.0

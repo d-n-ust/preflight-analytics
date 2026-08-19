@@ -163,13 +163,33 @@ def partition(facts: list[GroundingFact]) -> tuple[list[GroundingFact], list[Gro
     return primary, warehouse
 
 
+def _same_meaning_candidate(a: GroundingFact, b: GroundingFact, config: DetectConfig) -> bool:
+    """A pair whose DECLARED meaning already agrees is examined regardless of name similarity.
+
+    The similarity gate exists to prune text comparisons across unrelated pairs; it is a heuristic,
+    not evidence. When two facts wrap the same measure, or agree on every meaning facet they both
+    declare, the structure alone proves they are the same computation under two names — and names
+    prove nothing either way (`mrr` vs `monthly_recurring_revenue` share a measure and three
+    letters, so an acronym starves any text gate). Only meaning-agreement bypasses the gate: the
+    CONCEPT_FORK rule (same table, different columns) still requires the gate's name evidence,
+    because without it `order_total` vs `tax_paid` would read as a fork of one concept.
+
+    Restricted to metric-kind pairs: metrics are the surface an agent selects from, and metric
+    aliasing is the failure this catches. A dimension legitimately mirrors a column a metric wraps,
+    so letting dimensions bypass the gate would flag routine modelling as duplication."""
+    if a.kind != "metric" or b.kind != "metric":
+        return False
+    return ((a.measure is not None and a.measure == b.measure)
+            or _meaning_agrees(a, b, config.min_shared_facets))
+
+
 def _primary_edges(primary: list[GroundingFact], similarity: Similarity, config: DetectConfig) -> list[Edge]:
     edges: list[Edge] = []
     for a, b in itertools.combinations(primary, 2):
         if is_plumbing(a.label) or is_plumbing(b.label):
             continue
         s = similarity(a, b)
-        if a.label != b.label and s < config.gate:
+        if a.label != b.label and s < config.gate and not _same_meaning_candidate(a, b, config):
             continue
         c = classify(a, b, s, config)
         if c is not None:

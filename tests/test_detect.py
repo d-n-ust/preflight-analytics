@@ -182,3 +182,41 @@ def test_findings_are_json_serialisable_via_as_dicts():
     dumped = json.loads(json.dumps(as_dicts(findings)))
     assert dumped[0]["type"] == "CONCEPT_FORK"
     assert {"id", "label", "layer"} == set(dumped[0]["items"][0])
+
+
+# ── structural pairing: meaning-agreement bypasses the name gate ─────────────────────────────────
+def test_acronym_alias_of_same_measure_is_caught_without_name_similarity():
+    """`mrr` vs `monthly_recurring_revenue`: an acronym starves every text gate (lexical sim 0.00),
+    but both wrap the same measure — the structure alone proves the aliasing, and the pair must
+    reach classify() without the gate's help."""
+    a = fact("sl:mrr", "mrr", entity="revenue", agg="sum", base="subs", measure="mrr_amount")
+    b = fact("sl:m_r_r", "monthly_recurring_revenue",
+             entity="revenue", agg="sum", base="subs", measure="mrr_amount")
+    found = detect_collisions([a, b], gate="lexical")
+    assert [f.type for f in found] == ["DUPLICATE"]
+
+
+def test_scope_trap_is_caught_when_names_share_nothing():
+    """`new_users` vs `new_signups` as the sprawled layer ships them: same entity, agg and base,
+    one carries a hidden population filter. The trap must fire on structure, not on spelling."""
+    a = fact("sl:signups", "signups_total", entity="signup", agg="count", base="dim_users")
+    b = fact("sl:members", "fresh_members", entity="signup", agg="count", base="dim_users",
+             scope=(("is_internal", "cmp", "not is_internal"),))
+    found = detect_collisions([a, b], gate="lexical")
+    assert [f.type for f in found] == ["SCOPE_TRAP"]
+
+
+def test_same_table_same_agg_different_columns_still_needs_name_evidence():
+    """`order_total` vs `tax_paid`: same base, both sums, different columns — and NOT one concept.
+    CONCEPT_FORK keeps its gate requirement; the structural bypass must not manufacture forks."""
+    a = fact("sl:total", "order_total", entity="order", agg="sum", base="orders", measure="order_total")
+    b = fact("sl:tax", "tax_paid", entity="order", agg="sum", base="orders", measure="tax_paid")
+    assert detect_collisions([a, b], gate="lexical") == []
+
+
+def test_dimension_mirroring_a_metric_column_is_not_a_duplicate():
+    """A dimension that exposes the column a metric aggregates is routine modelling, not aliasing;
+    the bypass is metric-to-metric only."""
+    m = fact("sl:rev", "revenue", entity="order", agg="sum", base="orders", measure="amount")
+    d = fact("sl:dim:amount", "amount_band", kind="dimension", base="orders", measure="amount")
+    assert detect_collisions([m, d], gate="lexical") == []

@@ -128,11 +128,12 @@ preflight scan . --dialect dbt-manifest
 preflight scan . --dialect dbt-manifest --detail
 ```
 
-What it finds (11, four HIGH), led by the trap worth remembering:
+What it finds (14, five HIGH), led by the trap worth remembering:
 
 ```
-[SCOPE_TRAP] food_orders[sem] ~ orders[sem]
+[SCOPE_TRAP] food_orders[sem] ~ large_order[sem] ~ orders[sem] ~ orders_fill_nulls_with_zero[sem]
     models/marts/customer360/orders.yml:139 - name: food_orders
+    models/marts/customer360/orders.yml:108 - name: large_order
     models/marts/customer360/orders.yml:2   - name: orders
 ```
 

@@ -31,7 +31,7 @@ preflight scan . --dialect cube
 ```
 
 ```text
-8 findings — high 5, medium 1, low 2
+9 findings — high 5, medium 1, low 3
 
 HIGH (5)
   opportunity_scores.yml:30: [CONCEPT_FORK] contentOpportunityScoreAvg[sem] ~ overallOpportunityScoreAvg[sem] ~ priceOpportunityScoreAvg[sem]

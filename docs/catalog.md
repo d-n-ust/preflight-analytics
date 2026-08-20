@@ -285,3 +285,27 @@ same mistake wearing different costumes: **a scope or a cut that belongs in a di
 in a metric's name or its SQL.** The fix is almost always to expose that choice as a dimension or an
 explicit, governed filter, leaving one canonical metric per concept. That is also what makes a layer
 legible to an agent: one name per concept, and every narrowing visible as an argument.
+
+## VERSIONED_TWIN
+
+Two names where one is the other plus a version or leftover suffix: `users` beside `users_v2`, or
+`subscriptions` beside `subscriptions_backup_2026_03`. The suffix says one of them is a version,
+a migration leftover, or an archive, and nothing marks which one is current.
+
+```sql
+CREATE TABLE users (...);        -- the original
+CREATE TABLE users_v2 (...);     -- the migration that finished 80%
+```
+
+**Why it bites.** The two objects usually share a schema, so nothing structural separates them;
+the difference lives in their rows. A human asks a teammate. An agent picks by name, and either
+name looks fine.
+
+**Recommended fix.** Finish the migration: one object keeps the bare name, the other gets a
+deprecation window and then goes. dbt model versions and `deprecation_date` exist for exactly
+this transition. Backups and archives belong outside the analytics schema; if the build does not
+produce it, the warehouse should not contain it.
+
+**The rule is deliberately narrow.** Only conventional version/leftover suffixes match (`_v2`,
+`_old`, `_backup*`, `_tmp`, date stamps, and similar). A grain suffix like `orders_daily` is a
+different table on purpose and is not flagged.

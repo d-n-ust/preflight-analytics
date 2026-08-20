@@ -6,6 +6,18 @@ All notable changes are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.3.0] — 2026-08-20
+
+### Added
+- **`VERSIONED_TWIN`**, an eighth finding type. `users` beside `users_v2`, or a table with a
+  `_backup`/`_old`/date-stamped suffix beside its base name, is written ambiguity in its purest
+  form: the whole signal is in the names, yet a similarity gate can score the pair below the
+  synonym threshold and miss it. Matched exactly instead: strip a conventional version/leftover
+  suffix and look for the bare name in the same layer and kind. Grain-style suffixes
+  (`orders_daily`) are deliberately not matched. Validated as a no-op on `dbt-labs/jaffle-shop`,
+  `dbt-labs/jaffle-sl-template`, and a public Cube model.
+
+
 ## [0.2.0] — 2026-08-19
 
 ### Added
@@ -44,6 +56,7 @@ Initial release.
 - `preflight scan` CLI, a library API (`scan`, `detect_collisions`, `DetectConfig`), a composite
   GitHub Action, and a pre-commit hook.
 
-[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.3.0
 [0.2.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.2.0
 [0.1.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.1.0

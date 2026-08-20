@@ -10,7 +10,7 @@ Similarity decides only which name-pairs are worth examining (the confusability 
 decided structurally by `classify`, never by similarity.
 
 Types: DUPLICATE, SCOPE_TRAP, SIBLING, CONCEPT_FORK, DEFINITION_DIVERGENCE, NAME_COLLISION,
-GRAIN_MISMATCH.
+GRAIN_MISMATCH, VERSIONED_TWIN.
 """
 
 from __future__ import annotations
@@ -260,6 +260,40 @@ def _overloaded_column_findings(warehouse: list[GroundingFact], config: DetectCo
     return out
 
 
+# A trailing token that marks a versioned or leftover twin rather than a different concept.
+# Strict on purpose: `orders_daily` is a different grain, not a version, so grain-ish suffixes are
+# NOT here. Date stamps (users_2025, subscriptions_backup_2026_03) count as leftovers.
+_VERSION_SUFFIX = re.compile(
+    r"(?:_v\d+|_old|_new|_bak|_backup.*|_tmp|_temp|_copy|_final|_legacy|_deprecated|_archive.*"
+    r"|_(?:19|20)\d{2}(?:_\d{2}){0,2})$")
+
+
+def _version_twin_findings(facts: list[GroundingFact], config: DetectConfig) -> list[Finding]:
+    """`users` next to `users_v2`: the suffix says one is a version or leftover of the other, and
+    nothing marks which one is current. This is written ambiguity in its purest form — the whole
+    signal is in the names — yet a similarity gate can miss it (`users` ~ `users_v2` scores below
+    the synonym threshold). So it is matched exactly: strip a conventional version/leftover suffix
+    and look for a fact with the bare name, same layer and kind."""
+    by_key: dict[tuple[str, str, str], GroundingFact] = {}
+    for f in facts:
+        if not is_plumbing(f.label):
+            by_key.setdefault((f.layer, f.kind, f.label), f)
+    out: list[Finding] = []
+    for (layer, kind, label), f in sorted(by_key.items()):
+        stripped = _VERSION_SUFFIX.sub("", label)
+        if stripped == label or not stripped:
+            continue
+        base = by_key.get((layer, kind, stripped))
+        if base is None:
+            continue
+        out.append(Finding("VERSIONED_TWIN", "medium",
+            f"'{label}' reads as a versioned or leftover twin of '{stripped}' — nothing marks "
+            f"which one is current",
+            (Item(base.id, base.label, base.layer, base.source),
+             Item(f.id, f.label, f.layer, f.source))))
+    return out
+
+
 class _UnionFind:
     """Disjoint-set with path compression. An implementation detail of clustering; the function that
     uses it (`_cluster`) is pure — same edges in, same findings out."""
@@ -339,5 +373,6 @@ def detect_collisions(facts: Iterable[GroundingFact], *, gate: str = "auto", mod
     edges = (_primary_edges(primary, similarity, config)
              + _warehouse_label_edges(primary, warehouse, config)
              + _warehouse_synonym_edges(warehouse, similarity, config))
-    findings = _cluster(edges, by_id) + _overloaded_column_findings(warehouse, config)
+    findings = (_cluster(edges, by_id) + _overloaded_column_findings(warehouse, config)
+                + _version_twin_findings(facts, config))
     return rank(findings)

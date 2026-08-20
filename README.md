@@ -74,6 +74,7 @@ project (jaffle shop) end to end in a few commands.
 | **DEFINITION_DIVERGENCE** | one term defined two ways, or a metric its docs never describe |
 | **NAME_COLLISION** | two names read alike, or one column name reused across tables |
 | **DUPLICATE** | the same thing under two names |
+| **VERSIONED_TWIN** | `users` beside `users_v2` or a dated backup: a version or leftover, and nothing marks which is current |
 | **SIBLING** | the same measure under two incomparable scopes |
 
 Each is a real confusion that returns a wrong number. A worked example and the recommended fix for every

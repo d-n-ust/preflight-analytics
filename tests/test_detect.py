@@ -220,3 +220,27 @@ def test_dimension_mirroring_a_metric_column_is_not_a_duplicate():
     m = fact("sl:rev", "revenue", entity="order", agg="sum", base="orders", measure="amount")
     d = fact("sl:dim:amount", "amount_band", kind="dimension", base="orders", measure="amount")
     assert detect_collisions([m, d], gate="lexical") == []
+
+
+# ── version/leftover twins: the signal is entirely in the names ──────────────────────────────────
+def test_users_v2_is_flagged_as_a_versioned_twin():
+    a = fact("wh:users", "users", layer="warehouse", kind="table", base="users")
+    b = fact("wh:users_v2", "users_v2", layer="warehouse", kind="table", base="users_v2")
+    found = detect_collisions([a, b], gate="lexical")
+    assert [f.type for f in found] == ["VERSIONED_TWIN"]
+    assert "versioned or leftover twin" in found[0].note
+
+
+def test_backup_table_with_date_stamp_is_flagged():
+    a = fact("wh:subscriptions", "subscriptions", layer="warehouse", kind="table", base="subscriptions")
+    b = fact("wh:subscriptions_backup_2026_03", "subscriptions_backup_2026_03",
+             layer="warehouse", kind="table", base="subscriptions_backup_2026_03")
+    found = detect_collisions([a, b], gate="lexical")
+    assert [f.type for f in found] == ["VERSIONED_TWIN"]
+
+
+def test_grain_suffix_is_not_a_version_twin():
+    """`orders_daily` is a different grain, not a leftover; the suffix list must not flag it."""
+    a = fact("wh:orders", "orders", layer="warehouse", kind="table", base="orders")
+    b = fact("wh:orders_daily", "orders_daily", layer="warehouse", kind="table", base="orders_daily")
+    assert detect_collisions([a, b], gate="lexical") == []

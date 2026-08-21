@@ -35,6 +35,17 @@ def _table(model: str | None) -> str | None:
     return (m.group(1) if m else model.strip()).split(".")[-1].lower() or None
 
 
+def _source_table(sm: dict) -> str | None:
+    """The table a semantic model reads, in either MetricFlow convention.
+
+    The dbt project form names it `model: ref('fct_orders')`. The standalone form the MetricFlow
+    parser reads names it `node_relation: {schema_name: ..., alias: fct_orders}`. Only the first
+    was read, so every metric in a standalone layer carried no source table at all — and `base` is
+    a meaning facet, so its absence silently weakened every rule that compares where two metrics
+    read from."""
+    return _table(sm.get("model")) or _table((sm.get("node_relation") or {}).get("alias"))
+
+
 def _primary_entity(sm: dict) -> str | None:
     for e in sm.get("entities", []) or []:
         if e.get("type") == "primary":
@@ -77,7 +88,7 @@ def facts_from_metricflow(semantic_models: list[dict], metrics: list[dict]) -> l
     surface."""
     index: dict[str, dict] = {}
     for sm in semantic_models:
-        base, entity = _table(sm.get("model")), _primary_entity(sm)
+        base, entity = _source_table(sm), _primary_entity(sm)
         for meas in sm.get("measures", []) or []:
             index[meas["name"]] = {"agg": meas.get("agg"), "expr": meas.get("expr") or meas["name"],
                                    "base": base, "entity": entity, "model": sm.get("name")}
@@ -121,7 +132,7 @@ def facts_from_metricflow(semantic_models: list[dict], metrics: list[dict]) -> l
                 measure=tp.get("expr"), derived=True, scope=scope, text=text))
 
     for sm in semantic_models:
-        base, entity = _table(sm.get("model")), _primary_entity(sm)
+        base, entity = _source_table(sm), _primary_entity(sm)
         for meas in sm.get("measures", []) or []:
             if meas["name"] in referenced:
                 continue

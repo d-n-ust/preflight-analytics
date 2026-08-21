@@ -102,7 +102,15 @@ def classify(a: GroundingFact, b: GroundingFact, sim: float,
                 f"silently scoped, swap invisible")
         return Classification("SIBLING", "low", "same measure, incomparable scopes — a question must name one")
 
-    # 2. concept fork: same entity+agg+table, DIFFERENT measured column/expr (the revenue family).
+    # 2. fact twin: the same column counted the same way over two grains of one process.
+    if _fact_twin_candidate(a, b):
+        add = a.additive or b.additive
+        danger = "high" if add in ("semi", "non") else "medium"
+        return Classification("FACT_TWIN", danger,
+            f"same measure counted over '{a.base}' and '{b.base}' — one process at two grains; "
+            f"a bare question resolves to two different numbers and neither name says which")
+
+    # 3. concept fork: same entity+agg+table, DIFFERENT measured column/expr (the revenue family).
     # Exception: a distinct count of an entity KEY counts that entity, so two different keys
     # (count_distinct(customer_id) vs count_distinct(location_id)) are two named entities, not one
     # forked concept — the differing name is the disambiguator, not a hidden qualifier of a shared
@@ -163,6 +171,55 @@ def partition(facts: list[GroundingFact]) -> tuple[list[GroundingFact], list[Gro
     return primary, warehouse
 
 
+_MODEL_PREFIX = re.compile(r"^(?:fct|fact|f|dim|d|agg|stg|int|mart|rpt)_")
+
+
+def _process_stem(table: str) -> str:
+    """A table name reduced to the business process it describes: modelling prefix dropped, plural
+    folded. `fct_subscriptions` and `fct_subscription_months` both start from `subscription`."""
+    s = _MODEL_PREFIX.sub("", table.lower())
+    return s[:-1] if s.endswith("s") else s
+
+
+def _same_process(a: str, b: str) -> bool:
+    """Whether two tables describe the same business process — the test that separates a real fact
+    twin from two unrelated facts.
+
+    A periodic snapshot is conventionally named for the fact it snapshots plus its grain
+    (`fct_subscriptions` -> `fct_subscription_months`), so one stem prefixes the other. Activity
+    and subscriptions share no stem, which is exactly the pair that must stay silent: counting
+    users over a product-activity fact and over a subscription snapshot are two different
+    questions, not one question answered twice."""
+    x, y = _process_stem(a), _process_stem(b)
+    if x == y:
+        return True
+    short, long = (x, y) if len(x) <= len(y) else (y, x)
+    return len(short) >= 4 and long.startswith(short)
+
+
+def _fact_twin_candidate(a: GroundingFact, b: GroundingFact) -> bool:
+    """The same count, taken over two grains of one business process.
+
+    Two metrics aggregate the same column the same way, but read from different tables that
+    describe the same process — a transaction fact and its own periodic snapshot. The numbers
+    differ by construction (a lifetime count is not a current count) and neither name says which
+    grain it speaks for.
+
+    Like `_same_meaning_candidate`, this bypasses the similarity gate, and for the same reason at a
+    different angle: the gate starves on synonyms. Measured on a real layer, `subscribers` scored
+    0.377 against `paying_users` while `active_users` scored 0.490 against it — the dangerous pair
+    below the harmless one, so any name-gated version of this rule would flag the wrong pair first.
+    The structure is the evidence; the name is not evidence either way."""
+    if a.kind != "metric" or b.kind != "metric":
+        return False
+    if not a.agg or a.agg != b.agg or not a.measure or a.measure != b.measure:
+        return False
+    table_a, table_b = a.base, b.base
+    if not table_a or not table_b or table_a == table_b:
+        return False
+    return _same_process(table_a, table_b)
+
+
 def _same_meaning_candidate(a: GroundingFact, b: GroundingFact, config: DetectConfig) -> bool:
     """A pair whose DECLARED meaning already agrees is examined regardless of name similarity.
 
@@ -189,7 +246,9 @@ def _primary_edges(primary: list[GroundingFact], similarity: Similarity, config:
         if is_plumbing(a.label) or is_plumbing(b.label):
             continue
         s = similarity(a, b)
-        if a.label != b.label and s < config.gate and not _same_meaning_candidate(a, b, config):
+        if (a.label != b.label and s < config.gate
+                and not _same_meaning_candidate(a, b, config)
+                and not _fact_twin_candidate(a, b)):
             continue
         c = classify(a, b, s, config)
         if c is not None:

@@ -286,6 +286,38 @@ in a metric's name or its SQL.** The fix is almost always to expose that choice 
 explicit, governed filter, leaving one canonical metric per concept. That is also what makes a layer
 legible to an agent: one name per concept, and every narrowing visible as an argument.
 
+## FACT_TWIN
+
+Two metrics that count the same column the same way, over two tables describing one business
+process at different grains: a transaction fact and its own periodic snapshot.
+
+```yaml
+metric: {name: subscribers,   measure: subscriber_count}    # fct_subscriptions      (every term ever)
+metric: {name: paying_users,  measure: paying_user_count}   # fct_subscription_months (the current book)
+```
+
+Both are `count(DISTINCT user_id)`. One answers "how many people have ever subscribed", the other
+"how many are paying now". The numbers differ by construction, and neither name says which grain it
+speaks for.
+
+**Why it bites.** Names like `subscribers` and `paying_users` are synonyms in English and strangers
+in text: measured on a real layer, this pair scored 0.377 while `active_users` versus `paying_users`
+scored 0.490. A rule that asked a similarity gate which pairs to compare would reach the harmless
+pair first and miss this one, so the pairing here is structural and ignores names entirely. Two
+tables count as one process when their names reduce to the same stem, which is what keeps a
+product-activity fact and a subscription snapshot apart: counting users over each is two questions,
+not one question answered twice.
+
+**Recommended fix.** Declare the grain in the metric and express the state as a dimension you
+filter, rather than as a second metric name. Kimball's rule for the underlying model applies to the
+metric too: a periodic snapshot and a transaction fact are different fact types, and a measure that
+spans both must say which one it means. If a lifetime count is genuinely needed alongside a current
+one, its name must carry the grain (`subscribers_lifetime`), and its description must say the
+window it covers.
+
+**Severity follows additivity.** A distinct count is semi-additive, so these are HIGH; an additive
+measure counted over two grains is MEDIUM.
+
 ## VERSIONED_TWIN
 
 Two names where one is the other plus a version or leftover suffix: `users` beside `users_v2`, or

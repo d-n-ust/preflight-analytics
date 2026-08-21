@@ -244,3 +244,47 @@ def test_grain_suffix_is_not_a_version_twin():
     a = fact("wh:orders", "orders", layer="warehouse", kind="table", base="orders")
     b = fact("wh:orders_daily", "orders_daily", layer="warehouse", kind="table", base="orders_daily")
     assert detect_collisions([a, b], gate="lexical") == []
+
+
+# ── fact twins: one process, two grains, the same count ──────────────────────────────────────────
+def test_lifetime_count_beside_its_snapshot_is_a_fact_twin():
+    """`subscribers` over the transaction fact and `paying_users` over its monthly snapshot count
+    the same key the same way and return different numbers. The names are synonyms that no text
+    gate scores as such, so the pair must be reached structurally (gate="lexical" here proves it)."""
+    a = fact("sl:subscribers", "subscribers", entity="subscription", agg="count_distinct",
+             base="fct_subscriptions", measure="user_id", additive="semi")
+    b = fact("sl:paying_users", "paying_users", entity="sub_month", agg="count_distinct",
+             base="fct_subscription_months", measure="user_id", additive="semi")
+    found = detect_collisions([a, b], gate="lexical")
+    assert [f.type for f in found] == ["FACT_TWIN"]
+    assert found[0].danger == "high"          # a distinct count is semi-additive
+    assert "two grains" in found[0].note
+
+
+def test_same_count_over_unrelated_processes_is_not_a_fact_twin():
+    """The rule that decides the previous test must stay silent here, or it is useless: counting
+    users over a product-activity fact and over a subscription snapshot are two different
+    questions. Measured on a real layer these names score HIGHER than the true twin above, so a
+    name-gated rule would flag this pair first — the process test is what separates them."""
+    a = fact("sl:active_users", "active_users", entity="activity", agg="count_distinct",
+             base="agg_active_days", measure="user_id", additive="semi")
+    b = fact("sl:paying_users", "paying_users", entity="sub_month", agg="count_distinct",
+             base="fct_subscription_months", measure="user_id", additive="semi")
+    assert detect_collisions([a, b], gate="lexical") == []
+
+
+def test_same_table_is_not_a_fact_twin():
+    """Two metrics on ONE table are a scope or fork question, never a grain twin."""
+    a = fact("sl:users_a", "signups", entity="user", agg="count", base="dim_users", measure="user_id")
+    b = fact("sl:users_b", "registrations", entity="user", agg="count", base="dim_users", measure="user_id")
+    assert not any(f.type == "FACT_TWIN" for f in detect_collisions([a, b], gate="lexical"))
+
+
+def test_different_measures_over_related_tables_are_not_fact_twins():
+    """The rule needs the SAME column counted the same way. Revenue summed on a transaction fact
+    and users counted on its snapshot are different questions that happen to share a process."""
+    a = fact("sl:billed", "billed_amount", entity="subscription", agg="sum",
+             base="fct_subscriptions", measure="billed_amount")
+    b = fact("sl:paying_users", "paying_users", entity="sub_month", agg="count_distinct",
+             base="fct_subscription_months", measure="user_id")
+    assert not any(f.type == "FACT_TWIN" for f in detect_collisions([a, b], gate="lexical"))

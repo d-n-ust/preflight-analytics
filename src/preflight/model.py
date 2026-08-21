@@ -17,6 +17,7 @@ Danger = Literal["high", "medium", "low"]
 CollisionType = Literal[
     "DUPLICATE", "SCOPE_TRAP", "SIBLING", "CONCEPT_FORK",
     "DEFINITION_DIVERGENCE", "NAME_COLLISION", "GRAIN_MISMATCH", "VERSIONED_TWIN",
+    "FACT_TWIN",
 ]
 Layer = str            # semantic | warehouse | docs | queries
 Additivity = Literal["additive", "semi", "non"]

@@ -75,6 +75,7 @@ project (jaffle shop) end to end in a few commands.
 | **NAME_COLLISION** | two names read alike, or one column name reused across tables |
 | **DUPLICATE** | the same thing under two names |
 | **VERSIONED_TWIN** | `users` beside `users_v2` or a dated backup: a version or leftover, and nothing marks which is current |
+| **FACT_TWIN** | the same count over one process at two grains: a transaction fact and its own snapshot |
 | **SIBLING** | the same measure under two incomparable scopes |
 
 Each is a real confusion that returns a wrong number. A worked example and the recommended fix for every

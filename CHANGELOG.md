@@ -6,6 +6,27 @@ All notable changes are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.0] — 2026-08-21
+
+### Added
+- **`FACT_TWIN`**, a ninth finding type: the same column counted the same way over two grains of
+  one business process — a transaction fact beside its own periodic snapshot. `subscribers` over
+  `fct_subscriptions` and `paying_users` over `fct_subscription_months` return different numbers by
+  construction, and neither name says which grain it speaks for. Like the 0.2.0 structural pairing,
+  this bypasses the similarity gate, for the same reason at a different angle: the gate starves on
+  synonyms. Measured on a real layer, `subscribers` scored 0.377 against `paying_users` while
+  `active_users` scored 0.490 against it, so any name-gated version of the rule would flag the
+  harmless pair first. Two tables count as one process when their names reduce to the same stem
+  (`fct_subscriptions` -> `fct_subscription_months`), which is what keeps activity and subscription
+  facts apart. Validated as a no-op on `dbt-labs/jaffle-shop`, `dbt-labs/jaffle-sl-template`, and
+  four public Cube models.
+
+### Fixed
+- The MetricFlow adapter read a semantic model's table only from the dbt project form
+  (`model: ref(...)`), not from the standalone form (`node_relation: {alias: ...}`), so every metric
+  in a standalone layer carried no source table. `base` is a meaning facet, so its absence quietly
+  weakened every rule that compares where two metrics read from.
+
 ## [0.3.0] — 2026-08-20
 
 ### Added
@@ -56,7 +77,8 @@ Initial release.
 - `preflight scan` CLI, a library API (`scan`, `detect_collisions`, `DetectConfig`), a composite
   GitHub Action, and a pre-commit hook.
 
-[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/d-n-ust/preflight-analytics/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.4.0
 [0.3.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.3.0
 [0.2.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.2.0
 [0.1.0]: https://github.com/d-n-ust/preflight-analytics/releases/tag/v0.1.0
